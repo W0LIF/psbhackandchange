@@ -1,1 +1,11 @@
-["efefef"]
+[
+  "efefef",
+  {
+    "id": "32ab525c-dd30-4394-a113-eb347cbac5e2",
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "group": "A-1",
+    "createdAt": "2025-11-29T19:59:31.147Z",
+    "updatedAt": "2025-11-29T19:59:31.147Z"
+  }
+]

@@ -49,9 +49,10 @@ try {
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares в правильном порядке
+// Middlewares в правильном порядке - УВЕЛИЧИМ ЛИМИТ ДЛЯ JSON
 app.use(morgan('combined', { stream }));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Try to load auth router and normalize various export shapes
@@ -126,22 +127,61 @@ function isValidEmail(email) {
   return typeof email === 'string' && emailRegex.test(email.trim());
 }
 
-// Register a student
+// Register a student - ПОЛНОСТЬЮ ПЕРЕПИСАННЫЙ ОБРАБОТЧИК
 app.post('/api/students/register', async (req, res) => {
   try {
     logger.info('POST /api/students/register called');
+    logger.info('Request body:', JSON.stringify(req.body));
     
-    const { name, email, group } = req.body || {};
-    
+    // Детальная проверка тела запроса
+    if (!req.body) {
+      return res.status(400).json({ 
+        error: 'Missing request body',
+        message: 'Request body is required' 
+      });
+    }
+
+    if (typeof req.body !== 'object') {
+      return res.status(400).json({ 
+        error: 'Invalid request body',
+        message: 'Request body must be a JSON object' 
+      });
+    }
+
+    // Извлекаем поля с защитой от undefined
+    const name = req.body.name;
+    const email = req.body.email;
+    const group = req.body.group;
+
+    // Проверяем наличие обязательных полей
+    if (name === undefined || name === null) {
+      return res.status(400).json({ 
+        error: 'Missing name',
+        message: 'Name field is required' 
+      });
+    }
+
+    if (email === undefined || email === null) {
+      return res.status(400).json({ 
+        error: 'Missing email',
+        message: 'Email field is required' 
+      });
+    }
+
+    // Преобразуем в строки и обрезаем пробелы
+    const nameStr = String(name).trim();
+    const emailStr = String(email).trim().toLowerCase();
+    const groupStr = group ? String(group).trim() : null;
+
     // Валидация
-    if (!name || !isValidName(name)) {
+    if (!isValidName(nameStr)) {
       return res.status(400).json({ 
         error: 'Invalid name', 
         message: 'Name must be at least 2 characters long' 
       });
     }
     
-    if (!email || !isValidEmail(email)) {
+    if (!isValidEmail(emailStr)) {
       return res.status(400).json({ 
         error: 'Invalid email', 
         message: 'Provide a valid email address' 
@@ -154,11 +194,11 @@ app.post('/api/students/register', async (req, res) => {
     
     // Проверка дубликата email
     const emailExists = students.some(student => 
-      student.email && student.email.toLowerCase() === email.trim().toLowerCase()
+      student.email && student.email.toLowerCase() === emailStr
     );
     
     if (emailExists) {
-      logger.warn(`Registration failed - duplicate email: ${email}`);
+      logger.warn(`Registration failed - duplicate email: ${emailStr}`);
       return res.status(409).json({ 
         error: 'Email already exists', 
         message: 'A student with this email is already registered' 
@@ -168,9 +208,9 @@ app.post('/api/students/register', async (req, res) => {
     // Создание студента
     const student = {
       id: uuidv4(),
-      name: name.trim(),
-      email: email.trim().toLowerCase(),
-      group: group ? String(group).trim() : null,
+      name: nameStr,
+      email: emailStr,
+      group: groupStr,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -191,7 +231,7 @@ app.post('/api/students/register', async (req, res) => {
     });
     
   } catch (err) {
-    logger.error(`Registration error: ${err.message}`, { stack: err.stack });
+    logger.error(`Registration error: ${err && err.message ? err.message : String(err)}`, { stack: err && err.stack });
     res.status(500).json({ 
       error: 'Internal server error',
       message: 'Failed to register student'
@@ -221,7 +261,7 @@ app.get('/api/students', async (req, res) => {
     });
     
   } catch (err) {
-    logger.error(`List students error: ${err.message}`, { stack: err.stack });
+    logger.error(`List students error: ${err && err.message ? err.message : String(err)}`, { stack: err && err.stack });
     res.status(500).json({ 
       error: 'Internal server error',
       message: 'Failed to retrieve students list'
