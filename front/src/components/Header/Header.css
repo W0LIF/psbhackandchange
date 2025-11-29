@@ -52,6 +52,7 @@
 
 .auth-section {
   position: relative;
+  color: #333;
 }
 
 .profile-button {
@@ -80,7 +81,7 @@
   right: 0;
   background-color: white;
   min-width: 160px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px black;
   border-radius: 5px;
   z-index: 1000;
   margin-top: 5px;

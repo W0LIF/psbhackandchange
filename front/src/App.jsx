@@ -6,20 +6,22 @@ import Header from './components/Header/Header.jsx';
 import HomePage from './page/mainpage/page.jsx';
 import ProfilePage from './page/profile/profile.jsx';
 import AuthModal from './components/autorezation/autorezation.jsx';
-import Course from './components/course/course.jsx'; // Предполагаемый путь к компоненту Course
+import Courses from './components/my_course/information.jsx'; // Добавьте этот импорт
+import CourseDetail from './page/name_course/name_course.jsx';
+import TopicDetail from './page/homeTheme/homeTheme.jsx';
+import Homework from './components/homework/homework.jsx'; 
 
 function App() {
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(true);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false); // Изменил на false по умолчанию
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const handleAuthSuccess = (success) => {
     setIsAuthenticated(success);
-    // После успешной авторизации можно перенаправить на профиль или оставить на главной
+    setIsAuthModalOpen(false);
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    // Дополнительная логика выхода: очистка токенов и т.д.
   };
 
   return (
@@ -32,25 +34,12 @@ function App() {
         />
         
         <Routes>
-          <Route 
-            path="/" 
-            element={
-              <HomePage 
-                isAuthenticated={isAuthenticated}
-                onAuthClick={() => setIsAuthModalOpen(true)}
-              />
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProfilePage 
-                isAuthenticated={isAuthenticated}
-                onAuthRequired={() => setIsAuthModalOpen(true)}
-              />
-            } 
-          />
-          {/* Добавьте другие маршруты по необходимости */}
+          <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} />} />
+          <Route path="/profile" element={<ProfilePage isAuthenticated={isAuthenticated} />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/topic" element={<CourseDetail />} /> 
+        <Route path="/topicNumber" element={<TopicDetail />} />
+        <Route path="/homework" element={<Homework />} />
         </Routes>
 
         <AuthModal 

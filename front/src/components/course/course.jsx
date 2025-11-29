@@ -10,6 +10,13 @@ const Course = ({ isAuthenticated = true }) => {
     file: null
   });
 
+  // Добавляем данные курсов
+  const courses = [
+    { id: 1, title: "Курс 1", progress: 75 },
+    { id: 2, title: "Курс 2", progress: 50 },
+    { id: 3, title: "Курс 3", progress: 25 }
+  ];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -29,6 +36,12 @@ const Course = ({ isAuthenticated = true }) => {
     e.preventDefault();
     console.log('Данные формы:', formData);
     alert('Задание отправлено!');
+  };
+
+  // Добавляем функцию для клика по курсу
+  const handleCourseClick = (courseId) => {
+    console.log('Переход к курсу:', courseId);
+    // Здесь можно добавить навигацию
   };
 
   return (
@@ -63,109 +76,32 @@ const Course = ({ isAuthenticated = true }) => {
       ) : (
         // Контент для авторизованного пользователя
         <>
-          <section className="my-courses">
-            <h2>Мои курсы</h2>
-            <div className="courses-grid">
-              <div className="course-card">
-                <h3>Курс 1</h3>
-                <div className="course-progress">75%</div>
-                <button className="course-button">Перейти</button>
-              </div>
-              <div className="course-card">
-                <h3>Курс 2</h3>
-                <div className="course-progress">45%</div>
-                <button className="course-button">Перейти</button>
-              </div>
-              <div className="course-card">
-                <h3>Курс 3</h3>
-                <div className="course-progress">20%</div>
-                <button className="course-button">Перейти</button>
-              </div>
-            </div>
-          </section>
-
-          {/* Форма отправки задания */}
-          <section className="homework-section">
-            <div className="submission-container">
-              <div className="submission-card">
-                <h1 className="submission-title">Отправка выполненного задания</h1>
+          <div className="courses-list">
+            {courses.map(course => (
+              <div key={course.id} className="course-item">
+                <div className="course-header">
+                  <h2 className="course-title">{course.title}</h2>
+                </div>
                 
-                <form onSubmit={handleSubmit} className="submission-form">
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="lastName">Фамилия</label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor="firstName">Имя</label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
+                <div className="course-progress">
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill"
+                      style={{ width: `${course.progress}%` }}
+                    ></div>
                   </div>
-
-                  <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="taskDescription">Описание задания</label>
-                    <textarea
-                      id="taskDescription"
-                      name="taskDescription"
-                      value={formData.taskDescription}
-                      onChange={handleInputChange}
-                      rows="4"
-                      placeholder="Опишите ваше задание..."
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="fileUpload" className="file-label">
-                      Загрузите свое выполненное задание
-                    </label>
-                    <input
-                      type="file"
-                      id="fileUpload"
-                      onChange={handleFileChange}
-                      className="file-input"
-                      required
-                    />
-                    {formData.file && (
-                      <div className="file-info">
-                        Выбран файл: {formData.file.name}
-                      </div>
-                    )}
-                  </div>
-
-                  <button type="submit" className="submit-button">
-                    Отправить задание
-                  </button>
-                </form>
+                  <span className="progress-percentage">{course.progress}%</span>
+                </div>
+                
+                <button 
+                  className="course-button"
+                  onClick={() => handleCourseClick(course.id)}
+                >
+                  Перейти →
+                </button>
               </div>
-            </div>
-          </section>
+            ))}
+          </div>
         </>
       )}
     </div>
