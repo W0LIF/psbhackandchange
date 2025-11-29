@@ -25,13 +25,17 @@ const CourseDetail = () => {
   return (
     <div className="name-course-container">
       <header className="name-course-header">
-        <button 
-          className="back-button"
-          onClick={handleBack}
-        >
-          ← Назад
-        </button>
-        <h1 className="name-course-title">Название курса</h1>
+        <div className="header-content">
+          <button 
+            className="back-button"
+            onClick={handleBack}
+          >
+            ← Назад
+          </button>
+          <h1 className="name-course-title">Название курса</h1>
+          {/* Пустой элемент для балансировки */}
+          <div className="header-spacer"></div>
+        </div>
       </header>
       
       <div className="topics-list">

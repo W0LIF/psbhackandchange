@@ -1,5 +1,5 @@
-/* src/components/CourseDetail.css */
-.course-detail-container {
+/* src/components/name_corse.css */
+.name-course-container {
   max-width: 900px;
   margin: 0 auto;
   padding: 40px 20px;
@@ -8,17 +8,18 @@
   min-height: 100vh;
 }
 
-.course-detail-header {
+.name-course-header {
   margin-bottom: 40px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: relative;
-  text-align: center;
 }
 
 .back-button {
-  position: absolute;
-  left: 0;
-  top: 99%;
-  transform: translateY(-50%);
   padding: 12px 24px;
   background: #6c757d;
   color: white;
@@ -27,19 +28,26 @@
   font-size: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .back-button:hover {
   background: #5a6268;
-  transform: translateY(-50%) translateX(-2px);
+  transform: translateX(-2px);
 }
 
-.course-detail-title {
+.name-course-title {
   color: #2c3e50;
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0;
-  padding: 0 80px;
+  text-align: center;
+  flex: 1;
+}
+
+.header-spacer {
+  width: 120px; /* Такая же ширина как у кнопки для балансировки */
+  flex-shrink: 0;
 }
 
 .topics-list {
@@ -58,6 +66,7 @@
   padding: 15px 15px;
   transition: all 0.3s ease;
   overflow: hidden;
+  position: relative;
 }
 
 .topic-item::before {
@@ -92,6 +101,7 @@
   font-size: 1rem;
   margin: 0;
   line-height: 1.5;
+  text-align: center;
 }
 
 .topic-button {
@@ -119,13 +129,26 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-  .course-detail-container {
+  .name-course-container {
     padding: 20px 15px;
   }
   
-  .course-detail-title {
+  .name-course-title {
     font-size: 2rem;
-    padding: 0 60px;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .back-button {
+    align-self: flex-start;
+    margin-bottom: 10px;
+  }
+  
+  .header-spacer {
+    display: none;
   }
   
   .topic-item {
@@ -135,27 +158,14 @@
     padding: 20px;
   }
   
-  .back-button {
-    position: relative;
-    transform: none;
-    margin-bottom: 20px;
-    width: auto;
-    display: inline-block;
-  }
-  
-  .back-button:hover {
-    transform: translateX(-2px);
-  }
-  
   .topic-content {
     text-align: center;
   }
 }
 
 @media (max-width: 480px) {
-  .course-detail-title {
+  .name-course-title {
     font-size: 1.75rem;
-    padding: 0;
   }
   
   .topic-title {

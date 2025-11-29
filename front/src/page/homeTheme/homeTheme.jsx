@@ -19,6 +19,11 @@ const TopicDetail = () => {
     }
   };
 
+  // Навигация на страницу с формой
+  const handleGoToForm = () => {
+    navigate(`//homework`);
+  };
+
   return (
     <div className="topic-detail-container">
       <header className="topic-header">
@@ -41,6 +46,8 @@ const TopicDetail = () => {
 
         <section className="assignment-section">
           <h2 className="assignment-title">Задание</h2>
+          
+          {/* Простая загрузка файла */}
           <div className="upload-area">
             <input 
               type="file" 
@@ -52,6 +59,16 @@ const TopicDetail = () => {
               Загрузить задание
             </label>
             <p className="upload-hint">Нажмите для выбора файла</p>
+          </div>
+
+          {/* Кнопка для перехода к полной форме */}
+          <div className="form-link-section">
+            <button 
+              className="form-link-button"
+              onClick={handleGoToForm}
+            >
+              📝 Заполнить форму отправки задания
+            </button>
           </div>
         </section>
       </div>

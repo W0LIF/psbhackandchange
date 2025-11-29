@@ -59,7 +59,15 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
     <header className="header">
       <div className="header-container">
         <div className="logo">
-          <Link to="/">Учебная платформа</Link>
+          <Link to="/" className="logo-link">
+            <img 
+              src="/logo.svg" 
+              alt="Учебная платформа" 
+              width="40" 
+              height="40"
+            />
+         
+          </Link>
         </div>
         
         <div className="auth-section">
@@ -75,10 +83,9 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
             {isAuthenticated && showProfileDropdown && (
               <div className="dropdown-menu">
                 <Link to="/profile" className="dropdown-item" onClick={handleProfileClick}>
-                  Мои материалы
+                  Мой профиль
                 </Link>
                 <button className="dropdown-item" onClick={handleMyCourse}>Мои курсы</button>
-                <button className="dropdown-item" >Настройки</button>
                 <button className="dropdown-item" onClick={handleLogout}>
                   Выйти
                 </button>

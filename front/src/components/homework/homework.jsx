@@ -13,6 +13,7 @@ const TopicDetail = () => {
     taskDescription: '',
     file: null
   });
+  const [fileName, setFileName] = useState('');
 
   const handleBack = () => {
     navigate(-1);
@@ -27,17 +28,21 @@ const TopicDetail = () => {
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      file: e.target.files[0]
-    }));
+    const file = e.target.files[0];
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        file: file
+      }));
+      setFileName(file.name);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log('Данные формы:', formData);
-    // Здесь можно добавить логику отправки данных
     alert('Задание отправлено!');
+    navigate(-1); // Возвращаемся назад после отправки
   };
 
   return (
@@ -49,105 +54,95 @@ const TopicDetail = () => {
         >
           ← Назад
         </button>
-        <h1 className="topic-title">Название темы</h1>
+        <h1 className="topic-title">Отправка задания</h1>
       </header>
 
       <div className="topic-content">
-        <section className="description-section">
-          <p className="topic-description">
-            Описание темы
-          </p>
-        </section>
-
-        <section className="assignment-section">
-          <h2 className="assignment-title">Задание</h2>
-          
-          {/* Форма отправки задания */}
-          <div className="homework-section">
-            <div className="submission-container">
-              <div className="submission-card">
-                <h1 className="submission-title">Отправка выполненного задания</h1>
-                
-                <form onSubmit={handleSubmit} className="submission-form">
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label htmlFor="lastName">Фамилия</label>
-                      <input
-                        type="text"
-                        id="lastName"
-                        name="lastName"
-                        value={formData.lastName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    
-                    <div className="form-group">
-                      <label htmlFor="firstName">Имя</label>
-                      <input
-                        type="text"
-                        id="firstName"
-                        name="firstName"
-                        value={formData.firstName}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
+        <div className="homework-section">
+          <div className="submission-container">
+            <div className="submission-card">
+              <h1 className="submission-title">Отправка выполненного задания</h1>
+              
+              <form onSubmit={handleSubmit} className="submission-form">
+                <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="email">Email</label>
+                    <label htmlFor="lastName">Фамилия</label>
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      value={formData.lastName}
                       onChange={handleInputChange}
                       required
                     />
                   </div>
-
+                  
                   <div className="form-group">
-                    <label htmlFor="taskDescription">Описание задания</label>
-                    <textarea
-                      id="taskDescription"
-                      name="taskDescription"
-                      value={formData.taskDescription}
-                      onChange={handleInputChange}
-                      rows="4"
-                      placeholder="Опишите ваше задание..."
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="fileUpload" className="file-label">
-                      Загрузите свое выполненное задание
-                    </label>
+                    <label htmlFor="firstName">Имя</label>
                     <input
-                      type="file"
-                      id="fileUpload"
-                      onChange={handleFileChange}
-                      className="file-input"
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      value={formData.firstName}
+                      onChange={handleInputChange}
                       required
                     />
-                    {formData.file && (
-                      <div className="file-info">
-                        Выбран файл: {formData.file.name}
-                      </div>
-                    )}
                   </div>
+                </div>
 
-                  <button type="submit" className="submit-button">
-                    Отправить задание
-                  </button>
-                </form>
-              </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="taskDescription">Описание задания</label>
+                  <textarea
+                    id="taskDescription"
+                    name="taskDescription"
+                    value={formData.taskDescription}
+                    onChange={handleInputChange}
+                    rows="4"
+                    placeholder="Опишите ваше задание..."
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="fileUpload" className="file-label">
+                    Загрузите свое выполненное задание
+                  </label>
+                  <input
+                    type="file"
+                    id="fileUpload"
+                    onChange={handleFileChange}
+                    className="file-input"
+                    required
+                  />
+                  {fileName && (
+                    <div className="file-info">
+                      Выбран файл: {fileName}
+                    </div>
+                  )}
+                </div>
+
+                <button type="submit" className="submit-button">
+                  Отправить задание
+                </button>
+              </form>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   );
 };
+
 
 export default TopicDetail;
