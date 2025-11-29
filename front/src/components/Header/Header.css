@@ -12,7 +12,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+<<<<<<< HEAD
   padding: 0 2rem;
+=======
+  height: 70px;
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
 }
 
 .logo a {
@@ -20,6 +24,10 @@
   text-decoration: none;
   font-size: 1.5rem;
   font-weight: bold;
+<<<<<<< HEAD
+=======
+  color: #2c3e50;
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
 }
 
 .nav {
@@ -31,9 +39,15 @@
 .nav-link {
   color: white;
   text-decoration: none;
+<<<<<<< HEAD
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: background-color 0.3s;
+=======
+  color: #34495e;
+  font-weight: 500;
+  transition: color 0.3s ease;
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
 }
 
 .nav-link:hover {
@@ -44,16 +58,87 @@
   background-color: #3498db;
 }
 
+<<<<<<< HEAD
 .auth-button {
   background-color: #e74c3c;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 4px;
+=======
+.auth-section{
+position:relative;
+}
+
+
+.auth-button, .profile-button{
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
+<<<<<<< HEAD
 .auth-button:hover {
   background-color: #c0392b;
+=======
+.auth-button:hover, .profile-dropdown-container{
+  position:relative;
+  display: inline-block;
+}
+
+.dropdown-menu{
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 5px;
+  z-index: 1000;
+  margin-top: 5px;
+  overflow: hidden;
+}
+
+.dropdown-item{
+  display:block;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.dropdown-item:hover{
+  background: #f5f5f5;
+}
+
+.dropdown-item:not(:last-child){
+  border-bottom: 1px solid #eee;
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .nav-list {
+    gap: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .logo {
+    font-size: 20px;
+  }
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
 }
