@@ -1,16 +1,10 @@
-<<<<<<< HEAD
 // components/Header/Header.jsx
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 
 const Header = ({ onAuthClick }) => {
   const location = useLocation();
-=======
-import React, { useState, useRef, useEffect } from 'react';
-import './Header.css';
-
-const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -47,18 +41,26 @@ const Header = () => {
   const handleLogin = () => {
     setIsLoggedIn(true);
     setShowAuthDropdown(false);
+    // Здесь можно добавить логику входа
   };
 
   const handleLogout = () => {
     setIsLoggedIn(false);
     setShowProfileDropdown(false);
+    // Здесь можно добавить логику выхода
   };
 
   const handleRegister = () => {
-    // Логика регистрации
     setShowAuthDropdown(false);
+    // Здесь можно открыть модальное окно регистрации
+    if (onAuthClick) {
+      onAuthClick();
+    }
   };
->>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
+
+  const handleProfileClick = () => {
+    setShowProfileDropdown(false);
+  };
 
   return (
     <header className="header">
@@ -80,12 +82,7 @@ const Header = () => {
           >
             Профиль
           </Link>
-          <button className="auth-button" onClick={onAuthClick}>
-            Войти
-          </button>
         </nav>
-<<<<<<< HEAD
-=======
         
         <div className="auth-section">
           {!isLoggedIn ? (
@@ -99,7 +96,7 @@ const Header = () => {
               </button>
               {showAuthDropdown && (
                 <div className="dropdown-menu">
-                  <button className="dropdown-item" onClick={handleLogin}>
+                  <button className="dropdown-item" onClick={() => { setShowAuthDropdown(false); onAuthClick(); }}>
                     Войти
                   </button>
                   <button className="dropdown-item" onClick={handleRegister}>
@@ -119,7 +116,9 @@ const Header = () => {
               </button>
               {showProfileDropdown && (
                 <div className="dropdown-menu">
-                  <button className="dropdown-item">Мой профиль</button>
+                  <Link to="/profile" className="dropdown-item" onClick={handleProfileClick}>
+                    Мой профиль
+                  </Link>
                   <button className="dropdown-item">Мои курсы</button>
                   <button className="dropdown-item">Настройки</button>
                   <button className="dropdown-item" onClick={handleLogout}>
@@ -130,7 +129,6 @@ const Header = () => {
             </div>
           )}
         </div>
->>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
       </div>
     </header>
   );
