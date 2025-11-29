@@ -1,129 +1,290 @@
-/* PlatformContent.css */
 .platform-content {
-  padding: 60px 20px;
-  background-color: #f5f5f5;
-  min-height: 60vh;
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Стили для неавторизованного состояния */
+/* Стили для неавторизованного пользователя */
 .platform-features h2 {
   text-align: center;
-  font-size: 32px;
-  margin-bottom: 40px;
   color: #333;
+  margin-bottom: 40px;
+  font-size: 32px;
+  font-weight: 600;
 }
 
 .features-grid {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 30px;
+  margin-top: 40px;
 }
 
 .feature-item {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e1e5e9;
 }
 
 .feature-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
 .feature-item h3 {
+  color: #2c5aa0;
   margin-bottom: 15px;
   font-size: 20px;
-  color: #333;
+  font-weight: 600;
 }
 
 .feature-item p {
   color: #666;
   line-height: 1.5;
+  font-size: 14px;
 }
 
-/* Стили для авторизованного состояния */
+/* Стили для авторизованного пользователя */
 .my-courses h2 {
-  text-align: center;
-  font-size: 32px;
-  margin-bottom: 40px;
   color: #333;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
 }
 
 .courses-grid {
-  max-width: 1200px;
-  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  gap: 25px;
+  margin-bottom: 50px;
 }
 
 .course-card {
-  background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
 }
 
 .course-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .course-card h3 {
-  margin-bottom: 15px;
-  font-size: 20px;
   color: #333;
+  margin-bottom: 20px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .course-progress {
-  font-size: 24px;
-  font-weight: bold;
-  color: #007bff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-block;
   margin-bottom: 20px;
 }
 
 .course-button {
-  background-color: #007bff;
+  background: #2c5aa0;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  font-weight: 500;
   transition: background-color 0.3s ease;
   width: 100%;
 }
 
 .course-button:hover {
-  background-color: #0056b3;
+  background: #1e3d6f;
 }
 
-/* Адаптивность для мобильных устройств */
+/* Стили для формы отправки задания */
+.homework-section {
+  margin-top: 50px;
+}
+
+.submission-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.submission-card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.submission-title {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.submission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.file-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.file-input {
+  padding: 8px 0;
+  border: none;
+  background: none;
+}
+
+.file-input::file-selector-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.file-input::file-selector-button:hover {
+  background: #5a6fd8;
+}
+
+.file-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border: 1px solid #b6e0fe;
+  border-radius: 6px;
+  color: #2c5282;
+  font-size: 13px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Адаптивность */
 @media (max-width: 768px) {
   .platform-content {
-    padding: 40px 20px;
+    padding: 20px 15px;
   }
   
   .platform-features h2,
   .my-courses h2 {
     font-size: 24px;
-    margin-bottom: 30px;
   }
   
-  .features-grid,
-  .courses-grid {
+  .features-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
   
-  .feature-item,
+  .courses-grid {
+    grid-template-columns: 1fr;
+  }
+  
   .course-card {
     padding: 20px;
+  }
+  
+  .submission-container {
+    padding: 20px;
+  }
+  
+  .submission-card {
+    padding: 25px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .submission-title {
+    font-size: 20px;
   }
 }

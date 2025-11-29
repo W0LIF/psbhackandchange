@@ -3,9 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 
-const Header = ({ onAuthClick }) => {
+const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
   const location = useLocation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const authDropdownRef = useRef(null);
@@ -28,8 +27,8 @@ const Header = ({ onAuthClick }) => {
     };
   }, []);
 
-  const handleAuthButtonClick = () => {
-    if (!isLoggedIn) {
+  const handleProfileButtonClick = () => {
+    if (!isAuthenticated) {
       setShowAuthDropdown(!showAuthDropdown);
       setShowProfileDropdown(false);
     } else {
@@ -39,20 +38,21 @@ const Header = ({ onAuthClick }) => {
   };
 
   const handleLogin = () => {
-    setIsLoggedIn(true);
     setShowAuthDropdown(false);
-    // Здесь можно добавить логику входа
+    if (onAuthClick) {
+      onAuthClick();
+    }
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
     setShowProfileDropdown(false);
-    // Здесь можно добавить логику выхода
+    if (onLogout) {
+      onLogout();
+    }
   };
 
   const handleRegister = () => {
     setShowAuthDropdown(false);
-    // Здесь можно открыть модальное окно регистрации
     if (onAuthClick) {
       onAuthClick();
     }
@@ -76,58 +76,49 @@ const Header = ({ onAuthClick }) => {
           >
             Главная
           </Link>
-          <Link 
-            to="/profile" 
-            className={location.pathname === '/profile' ? 'nav-link active' : 'nav-link'}
-          >
-            Профиль
-          </Link>
+          {isAuthenticated && (
+            <Link 
+              to="/profile" 
+              className={location.pathname === '/profile' ? 'nav-link active' : 'nav-link'}
+            >
+              Профиль
+            </Link>
+          )}
         </nav>
         
         <div className="auth-section">
-          {!isLoggedIn ? (
-            <div className="auth-dropdown-container" ref={authDropdownRef}>
-              <button 
-                className="auth-button"
-                onClick={handleAuthButtonClick}
-                onMouseEnter={() => setShowAuthDropdown(true)}
-              >
-                Войти
-              </button>
-              {showAuthDropdown && (
-                <div className="dropdown-menu">
-                  <button className="dropdown-item" onClick={() => { setShowAuthDropdown(false); onAuthClick(); }}>
-                    Войти
-                  </button>
-                  <button className="dropdown-item" onClick={handleRegister}>
-                    Регистрация
-                  </button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="profile-dropdown-container" ref={profileDropdownRef}>
-              <button 
-                className="profile-button"
-                onClick={handleAuthButtonClick}
-                onMouseEnter={() => setShowProfileDropdown(true)}
-              >
-                Профиль
-              </button>
-              {showProfileDropdown && (
-                <div className="dropdown-menu">
-                  <Link to="/profile" className="dropdown-item" onClick={handleProfileClick}>
-                    Мой профиль
-                  </Link>
-                  <button className="dropdown-item">Мои курсы</button>
-                  <button className="dropdown-item">Настройки</button>
-                  <button className="dropdown-item" onClick={handleLogout}>
-                    Выйти
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+          <div className={isAuthenticated ? "profile-dropdown-container" : "auth-dropdown-container"} 
+               ref={isAuthenticated ? profileDropdownRef : authDropdownRef}>
+            <button 
+              className="profile-button"
+              onClick={handleProfileButtonClick}
+              onMouseEnter={() => isAuthenticated ? setShowProfileDropdown(true) : setShowAuthDropdown(true)}
+            >
+              Профиль
+            </button>
+            {!isAuthenticated && showAuthDropdown && (
+              <div className="dropdown-menu">
+                <button className="dropdown-item" onClick={handleLogin}>
+                  Войти
+                </button>
+                <button className="dropdown-item" onClick={handleRegister}>
+                  Регистрация
+                </button>
+              </div>
+            )}
+            {isAuthenticated && showProfileDropdown && (
+              <div className="dropdown-menu">
+                <Link to="/profile" className="dropdown-item" onClick={handleProfileClick}>
+                  Мой материалы
+                </Link>
+                <button className="dropdown-item">Мои курсы</button>
+                <button className="dropdown-item">Настройки</button>
+                <button className="dropdown-item" onClick={handleLogout}>
+                  Выйти
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
