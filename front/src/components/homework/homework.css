@@ -1,0 +1,341 @@
+.platform-content {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Стили для неавторизованного пользователя */
+.platform-features h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 40px;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  margin-top: 40px;
+}
+
+.feature-item {
+  background: white;
+  padding: 30px 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #e1e5e9;
+}
+
+.feature-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.feature-item h3 {
+  color: #2c5aa0;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.feature-item p {
+  color: #666;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Стили для авторизованного пользователя - КАРТОЧКИ КУРСОВ */
+.courses-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 25px;
+  margin-bottom: 50px;
+}
+
+.course-item {
+  background: white;
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+}
+
+.course-item:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.course-header {
+  margin-bottom: 20px;
+}
+
+.course-title {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* Стили для прогресс-бара */
+.course-progress {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  border-radius: 10px;
+  transition: width 0.8s ease;
+}
+
+.progress-percentage {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 14px;
+  min-width: 40px;
+}
+
+.course-button {
+  background: #2c5aa0;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.course-button:hover {
+  background: #1e3d6f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(44, 90, 160, 0.3);
+}
+
+/* Стили для формы отправки задания (если понадобятся) */
+.homework-section {
+  margin-top: 50px;
+}
+
+.submission-container {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.submission-card {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.submission-title {
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.submission-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #555;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 12px 16px;
+  border: 2px solid #e1e5e9;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+.file-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.file-input {
+  padding: 8px 0;
+  border: none;
+  background: none;
+}
+
+.file-input::file-selector-button {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.file-input::file-selector-button:hover {
+  background: #5a6fd8;
+}
+
+.file-info {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #e8f4fd;
+  border: 1px solid #b6e0fe;
+  border-radius: 6px;
+  color: #2c5282;
+  font-size: 13px;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 10px;
+}
+
+.submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .platform-content {
+    padding: 20px 15px;
+  }
+  
+  .platform-features h2 {
+    font-size: 24px;
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .courses-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .course-item {
+    padding: 20px;
+  }
+  
+  .course-progress {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  
+  .progress-percentage {
+    text-align: center;
+  }
+  
+  .submission-container {
+    padding: 20px;
+  }
+  
+  .submission-card {
+    padding: 25px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .submission-title {
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .course-title {
+    font-size: 18px;
+  }
+  
+  .course-button {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+  
+  .feature-item {
+    padding: 20px 15px;
+  }
+  
+  .feature-item h3 {
+    font-size: 18px;
+  }
+}
