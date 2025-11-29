@@ -1,4 +1,21 @@
 /* ProfilePage.css */
+/* page/profile/ProfilePage.css */
+.back-link {
+  color: #3498db;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
 .profile-page {
   min-height: 100vh;
   background-color: #f5f5f5;

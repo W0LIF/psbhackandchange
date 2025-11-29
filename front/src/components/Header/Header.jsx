@@ -1,20 +1,35 @@
+// components/Header/Header.jsx
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 
-const Header = () => {
+const Header = ({ onAuthClick }) => {
+  const location = useLocation();
+
   return (
     <header className="header">
-      <div className="header-content">
-        <div className="logo">Учебная платформа</div>
+      <div className="header-container">
+        <div className="logo">
+          <Link to="/">Учебная платформа</Link>
+        </div>
+        
         <nav className="nav">
-          <ul className="nav-list">
-            <li className="nav-item"><a href="#" className="nav-link">ПСБ</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Курсы</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Расписание</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Учебные материалы</a></li>
-          </ul>
+          <Link 
+            to="/" 
+            className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}
+          >
+            Главная
+          </Link>
+          <Link 
+            to="/profile" 
+            className={location.pathname === '/profile' ? 'nav-link active' : 'nav-link'}
+          >
+            Профиль
+          </Link>
+          <button className="auth-button" onClick={onAuthClick}>
+            Войти
+          </button>
         </nav>
-        <button className="auth-button">Войти</button>
       </div>
     </header>
   );

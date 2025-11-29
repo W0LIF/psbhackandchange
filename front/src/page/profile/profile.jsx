@@ -1,12 +1,16 @@
 import React from 'react';
-import './ProfilePage.css';
+import { Link } from 'react-router-dom';
+import './profile.css';
 
 const ProfilePage = () => {
   return (
     <div className="profile-page">
       <div className="profile-container">
         <div className="profile-header">
-          <h1>Профиль</h1>
+          <h1>Профиль пользователя</h1>
+          <Link to="/" className="back-link">
+            ← На главную
+          </Link>
         </div>
         
         <div className="profile-content">
@@ -51,15 +55,15 @@ const ProfilePage = () => {
             <div className="tasks-list">
               <div className="task-item">
                 <div className="task-title">Задание 1: Верстка лендинга</div>
-                <div className="task-status">Выполнено</div>
+                <div className="task-status completed">Выполнено</div>
               </div>
               <div className="task-item">
                 <div className="task-title">Задание 2: React компоненты</div>
-                <div className="task-status">Выполнено</div>
+                <div className="task-status completed">Выполнено</div>
               </div>
               <div className="task-item">
                 <div className="task-title">Задание 3: TypeScript типы</div>
-                <div className="task-status">В процессе</div>
+                <div className="task-status in-progress">В процессе</div>
               </div>
             </div>
           </div>
