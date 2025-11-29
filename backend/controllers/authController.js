@@ -1,6 +1,6 @@
 // backend/controllers/authController.js
 const bcrypt = require('bcryptjs');
-const { users, nextId } = require('../data/users');
+const usersData = require('../data/users');
 const { generateToken } = require('../middleware/auth');
 
 console.log('✅ AuthController загружен');
@@ -41,7 +41,7 @@ const register = async (req, res) => {
 
     // Создаем нового пользователя
     const newUser = {
-      id: nextId,
+      id: usersData.nextId,
       email,
       password: hashedPassword,
       firstName,
@@ -50,8 +50,8 @@ const register = async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    users.push(newUser);
-    nextId++;
+    usersData.users.push(newUser);
+    usersData.nextId++;
 
     // Создаем токен
     const token = generateToken(newUser.id);

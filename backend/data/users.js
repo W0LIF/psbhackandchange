@@ -4,7 +4,7 @@ let users = [
   {
     id: 1,
     email: "teacher@test.ru",
-    password: "$2a$12$LQv3c1yqBNWB1DM3Z5kZPuMhV2QYQHTPc8UYV9p9G9pZ7J5Z5J5J5", // password123
+    password: "$2b$12$h3hOYzWA9aQnc0T95SjkaOnRm58gtOpnL2WdI4.eQreAkjRjczPEi", // password123
     firstName: "Иван",
     lastName: "Преподавателев",
     role: "teacher",
@@ -13,7 +13,7 @@ let users = [
   {
     id: 2, 
     email: "student@test.ru",
-    password: "$2a$12$LQv3c1yqBNWB1DM3Z5kZPuMhV2QYQHTPc8UYV9p9G9pZ7J5Z5J5J5", // password123
+    password: "$2b$12$h3hOYzWA9aQnc0T95SjkaOnRm58gtOpnL2WdI4.eQreAkjRjczPEi", // password123
     firstName: "Петр",
     lastName: "Студентов",
     role: "student",

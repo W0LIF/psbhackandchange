@@ -20,25 +20,15 @@ app.use((req, res, next) => {
 });
 
 // Импортируем данные и middleware
-let users, nextId;
+let usersData;
 try {
-  const usersData = require('./data/users');
-  users = usersData.users;
-  nextId = usersData.nextId;
+  usersData = require('./data/users');
   console.log('✅ Данные пользователей загружены');
 } catch (error) {
   console.log('❌ Ошибка загрузки данных пользователей:', error.message);
-  // Создаем временные данные
-  users = [];
-  nextId = 1;
+  // Создаем временную структуру
+  usersData = { users: [], nextId: 1 };
 }
-
-// Функция для генерации токена (временно здесь)
-const generateToken = (userId) => {
-  const jwt = require('jsonwebtoken');
-  const JWT_SECRET = 'education-platform-secret-key';
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
-};
 
 // Простой тестовый маршрут
 app.get('/', (req, res) => {
@@ -65,139 +55,7 @@ app.get('/api/test', (req, res) => {
   });
 });
 
-// РЕГИСТРАЦИЯ
-app.post('/api/auth/register', async (req, res) => {
-  console.log('🔐 Register endpoint called');
-  try {
-    const { email, password, firstName, lastName, role } = req.body;
-
-    // Проверяем обязательные поля
-    if (!email || !password || !firstName || !lastName || !role) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Все поля обязательны для заполнения'
-      });
-    }
-
-    // Проверяем валидность роли
-    if (!['student', 'teacher'].includes(role)) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Роль должна быть student или teacher'
-      });
-    }
-
-    // Проверяем, нет ли пользователя с таким email
-    const existingUser = users.find(user => user.email === email);
-    if (existingUser) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Пользователь с таким email уже существует'
-      });
-    }
-
-    // Хэшируем пароль
-    const hashedPassword = await bcrypt.hash(password, 12);
-
-    // Создаем нового пользователя
-    const newUser = {
-      id: nextId,
-      email,
-      password: hashedPassword,
-      firstName,
-      lastName, 
-      role,
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    nextId++;
-
-    console.log('✅ Новый пользователь создан:', { id: newUser.id, email: newUser.email });
-
-    // Создаем токен
-    const token = generateToken(newUser.id);
-
-    // Возвращаем ответ без пароля
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    res.status(201).json({
-      status: 'success',
-      message: 'Пользователь успешно зарегистрирован',
-      token,
-      user: userWithoutPassword
-    });
-
-  } catch (error) {
-    console.error('❌ Ошибка регистрации:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Внутренняя ошибка сервера: ' + error.message
-    });
-  }
-});
-
-// ЛОГИН
-app.post('/api/auth/login', async (req, res) => {
-  console.log('🔐 Login endpoint called');
-  try {
-    const { email, password } = req.body;
-
-    // Проверяем обязательные поля
-    if (!email || !password) {
-      return res.status(400).json({
-        status: 'error',
-        message: 'Email и пароль обязательны'
-      });
-    }
-
-    console.log('🔍 Ищем пользователя:', email);
-    console.log('📊 Все пользователи:', users.map(u => ({ id: u.id, email: u.email })));
-
-    // Ищем пользователя
-    const user = users.find(u => u.email === email);
-    if (!user) {
-      console.log('❌ Пользователь не найден');
-      return res.status(401).json({
-        status: 'error',
-        message: 'Неверный email или пароль'
-      });
-    }
-
-    console.log('✅ Пользователь найден:', user.email);
-
-    // Проверяем пароль
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('🔑 Проверка пароля:', isPasswordValid);
-    
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        status: 'error', 
-        message: 'Неверный email или пароль'
-      });
-    }
-
-    // Создаем токен
-    const token = generateToken(user.id);
-
-    // Возвращаем ответ без пароля
-    const { password: _, ...userWithoutPassword } = user;
-
-    res.json({
-      status: 'success',
-      message: 'Вход выполнен успешно',
-      token,
-      user: userWithoutPassword
-    });
-
-  } catch (error) {
-    console.error('❌ Ошибка входа:', error);
-    res.status(500).json({
-      status: 'error',
-      message: 'Внутренняя ошибка сервера: ' + error.message
-    });
-  }
-});
+// NOTE: We removed local register/login handlers in favor of the routes defined in controllers
 
 // Пробуем загрузить маршруты из файлов
 console.log('\n=== ПОПЫТКА ЗАГРУЗКИ МАРШРУТОВ ИЗ ФАЙЛОВ ===');

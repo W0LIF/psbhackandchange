@@ -1,5 +1,6 @@
 // backend/controllers/userController.js
-const { users } = require('../data/users');
+const usersData = require('../data/users');
+const users = usersData.users;
 
 // Получение профиля пользователя
 const getUserProfile = (req, res) => {
