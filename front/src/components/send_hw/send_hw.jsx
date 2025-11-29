@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './send_hw.css';
 
 const Home_work = () => {
@@ -9,6 +9,9 @@ const Home_work = () => {
     taskDescription: '',
     file: null
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,17 +28,60 @@ const Home_work = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Данные формы:', formData);
-    // Здесь будет логика отправки данных
-    alert('Задание отправлено!');
+    setError('');
+    setSuccess('');
+
+    if (!formData.file) {
+      setError('Нужно выбрать файл');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const data = new FormData();
+      data.append('lastName', formData.lastName);
+      data.append('firstName', formData.firstName);
+      data.append('email', formData.email);
+      data.append('taskDescription', formData.taskDescription);
+      // Этот компонент не привязан к конкретному курсу/теме, поэтому courseId/topicId не передаём
+      data.append('file', formData.file);
+
+      const res = await fetch('/api/homeworks', {
+        method: 'POST',
+        body: data
+      });
+
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(json?.error || 'Не удалось отправить задание');
+        return;
+      }
+
+      setSuccess('Задание отправлено!');
+      setFormData({
+        lastName: '',
+        firstName: '',
+        email: '',
+        taskDescription: '',
+        file: null
+      });
+    } catch (err) {
+      setError('Сервер недоступен, попробуйте позже');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="submission-container">
       <div className="submission-card">
         <h1 className="submission-title">Отправка выполненного задания</h1>
+
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
         
         <form onSubmit={handleSubmit} className="submission-form">
           <div className="form-row">
@@ -106,8 +152,8 @@ const Home_work = () => {
             )}
           </div>
 
-          <button type="submit" className="submit-button">
-            Отправить задание
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? 'Отправка...' : 'Отправить задание'}
           </button>
         </form>
       </div>

@@ -1,25 +1,49 @@
 // src/components/CourseDetail.jsx
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './name_corse.css';
 
 const CourseDetail = () => {
   const navigate = useNavigate();
-  const { courseId } = useParams();
+  const location = useLocation();
+  const courseId = location.state?.courseId || 1;
 
-  const topics = [
-    { id: 1, title: "Тема 1", description: "Краткое описание" },
-    { id: 2, title: "Тема 2", description: "Краткое описание" },
-    { id: 3, title: "Тема 3", description: "Краткое описание" },
-    { id: 4, title: "Тема 4", description: "Краткое описание" }
-  ];
+  const [topics, setTopics] = useState([]);
+  const [courseTitle, setCourseTitle] = useState('Название курса');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const res = await fetch(`/api/courses/${courseId}`);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data?.error || 'Не удалось загрузить курс');
+          setTopics([]);
+          return;
+        }
+        setCourseTitle(data.course?.title || 'Название курса');
+        setTopics(Array.isArray(data.topics) ? data.topics : []);
+      } catch (e) {
+        setError('Сервер недоступен, попробуйте позже');
+        setTopics([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [courseId]);
 
   const handleBack = () => {
     navigate(-1);
   };
 
-  const handleTopicClick = (topicId) => {
-    navigate(`/topicNumber`);
+  const handleTopicClick = (topic) => {
+    navigate(`/topicNumber`, { state: { topicId: topic.id, courseId, title: topic.title, description: topic.description } });
   };
 
   return (
@@ -32,22 +56,24 @@ const CourseDetail = () => {
           >
             ← Назад
           </button>
-          <h1 className="name-course-title">Название курса</h1>
+          <h1 className="name-course-title">{courseTitle}</h1>
           {/* Пустой элемент для балансировки */}
           <div className="header-spacer"></div>
         </div>
       </header>
       
       <div className="topics-list">
-        {topics.map(topic => (
+        {loading && <div className="topics-loading">Загрузка тем...</div>}
+        {error && <div className="topics-error">{error}</div>}
+        {!loading && !error && topics.map(topic => (
           <div key={topic.id} className="topic-item">
             <div className="topic-content">
               <h3 className="topic-title">{topic.title}</h3>
               <p className="topic-description">{topic.description}</p>
             </div>
-            <button 
+          <button 
               className="topic-button"
-              onClick={() => handleTopicClick(topic.id)}
+              onClick={() => handleTopicClick(topic)}
             >
               Перейти
             </button>

@@ -157,9 +157,241 @@
   color: #155724;
 }
 
-.task-status:last-child {
+.task-status.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.task-status.in-progress {
   background: #fff3cd;
   color: #856404;
+}
+
+.task-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+  font-size: 12px;
+}
+
+.task-course,
+.task-topic,
+.task-version {
+  padding: 4px 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  color: #666;
+}
+
+.task-version {
+  background: #cfe2ff;
+  color: #004085;
+}
+
+.task-comment {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fff3cd;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #856404;
+  border-left: 3px solid #ffc107;
+}
+
+.task-date {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #999;
+}
+
+.courses-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.course-progress-item {
+  background: white;
+  padding: 15px;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.course-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.course-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.course-progress-value {
+  font-weight: 600;
+  color: #007bff;
+}
+
+.course-progress-bar {
+  height: 8px;
+  background: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.course-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  transition: width 0.3s ease;
+}
+
+.grades-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.summary-item {
+  text-align: center;
+  padding: 15px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.grades-link {
+  display: inline-block;
+  margin-top: 15px;
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 20px;
+  border: 1px solid #007bff;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.grades-link:hover {
+  background: #007bff;
+  color: white;
+}
+
+.courses-grades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.course-grade-item {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  border-left: 4px solid #007bff;
+}
+
+.course-grade-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.course-grade-title {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.course-grade-average {
+  font-size: 14px;
+  color: #666;
+}
+
+.course-grade-average strong {
+  color: #007bff;
+  font-size: 16px;
+}
+
+.course-grade-stats {
+  margin-bottom: 15px;
+}
+
+.course-grade-stat {
+  font-size: 12px;
+  color: #999;
+  background: #f8f9fa;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.course-topics-grades {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.topic-grade-mini {
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #28a745;
+}
+
+.topic-grade-mini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.topic-grade-mini-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.topic-grade-mini-average {
+  font-size: 14px;
+  font-weight: 600;
+  color: #28a745;
+  background: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.topic-grade-mini-grades {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.grade-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  background: #e7f3ff;
+  color: #004085;
+  border-radius: 4px;
+  border: 1px solid #b3d9ff;
 }
 
 /* Адаптивность для мобильных устройств */
@@ -200,6 +432,10 @@
     flex-direction: column;
     gap: 10px;
     align-items: flex-start;
+  }
+
+  .grades-summary {
+    grid-template-columns: 1fr;
   }
 }
 

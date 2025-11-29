@@ -1,47 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './course.css';
 
-const Course = ({ isAuthenticated = true }) => {
-  const [formData, setFormData] = useState({
-    lastName: '',
-    firstName: '',
-    email: '',
-    taskDescription: '',
-    file: null
-  });
+const Course = ({ isAuthenticated = true, currentUser }) => {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Добавляем данные курсов
-  const courses = [
-    { id: 1, title: "Курс 1", progress: 75 },
-    { id: 2, title: "Курс 2", progress: 50 },
-    { id: 3, title: "Курс 3", progress: 25 }
-  ];
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCourses([]);
+      return;
+    }
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+    const load = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const email = currentUser?.email;
+        const url = email ? `/api/courses?email=${encodeURIComponent(email)}` : '/api/courses';
+        const res = await fetch(url);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setError(data?.error || 'Не удалось загрузить курсы');
+          setCourses([]);
+          return;
+        }
+        setCourses(Array.isArray(data.courses) ? data.courses : []);
+      } catch (e) {
+        setError('Сервер недоступен, попробуйте позже');
+        setCourses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleFileChange = (e) => {
-    setFormData(prev => ({
-      ...prev,
-      file: e.target.files[0]
-    }));
-  };
+    load();
+  }, [isAuthenticated, currentUser]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Данные формы:', formData);
-    alert('Задание отправлено!');
-  };
-
-  // Добавляем функцию для клика по курсу
   const handleCourseClick = (courseId) => {
-    console.log('Переход к курсу:', courseId);
-    // Здесь можно добавить навигацию
+    navigate('/topic', { state: { courseId } });
   };
 
   return (
@@ -76,32 +75,43 @@ const Course = ({ isAuthenticated = true }) => {
       ) : (
         // Контент для авторизованного пользователя
         <>
-          <div className="courses-list">
-            {courses.map(course => (
-              <div key={course.id} className="course-item">
-                <div className="course-header">
-                  <h2 className="course-title">{course.title}</h2>
-                </div>
-                
-                <div className="course-progress">
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill"
-                      style={{ width: `${course.progress}%` }}
-                    ></div>
+          {loading && <div className="loading">Загрузка курсов...</div>}
+          
+          {error && <div className="error-message">{error}</div>}
+          
+          {!loading && !error && (
+            <div className="courses-container">
+              {courses.length === 0 ? (
+                <div className="no-courses">Курсы не найдены</div>
+              ) : (
+                courses.map(course => (
+                  <div key={course.id} className="course-item">
+                    <div className="course-header">
+                      <h2 className="course-title">{course.title}</h2>
+                      <p className="course-description">{course.description}</p>
+                    </div>
+                    
+                    <div className="course-progress">
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill"
+                          style={{ width: `${course.progress || 0}%` }}
+                        ></div>
+                      </div>
+                      <span className="progress-percentage">{course.progress || 0}%</span>
+                    </div>
+                    
+                    <button 
+                      className="course-button"
+                      onClick={() => handleCourseClick(course.id)}
+                    >
+                      Перейти →
+                    </button>
                   </div>
-                  <span className="progress-percentage">{course.progress}%</span>
-                </div>
-                
-                <button 
-                  className="course-button"
-                  onClick={() => handleCourseClick(course.id)}
-                >
-                  Перейти →
-                </button>
-              </div>
-            ))}
-          </div>
+                ))
+              )}
+            </div>
+          )}
         </>
       )}
     </div>

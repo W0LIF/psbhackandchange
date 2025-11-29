@@ -66,10 +66,29 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
               width="40" 
               height="40"
             />
-         
           </Link>
         </div>
-        
+
+        <nav className="nav">
+          <Link to="/courses" className="nav-link">
+            Курсы
+          </Link>
+          <button
+            className="nav-link nav-link-button"
+            type="button"
+            onClick={() => navigate('/schedule')}
+          >
+            Расписание
+          </button>
+          <button
+            className="nav-link nav-link-button"
+            type="button"
+            onClick={() => navigate('/materials')}
+          >
+            Учебные материалы
+          </button>
+        </nav>
+
         <div className="auth-section">
           <div className={isAuthenticated ? "profile-dropdown-container" : "auth-dropdown-container"} 
                ref={isAuthenticated ? profileDropdownRef : authDropdownRef}>
@@ -86,6 +105,9 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
                   Мой профиль
                 </Link>
                 <button className="dropdown-item" onClick={handleMyCourse}>Мои курсы</button>
+                <button className="dropdown-item" onClick={() => { setShowProfileDropdown(false); navigate('/grades'); }}>
+                  Журнал успеваемости
+                </button>
                 <button className="dropdown-item" onClick={handleLogout}>
                   Выйти
                 </button>
