@@ -1,3 +1,12 @@
+<<<<<<< HEAD
+// components/Header/Header.jsx
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import './Header.css';
+
+const Header = ({ onAuthClick }) => {
+  const location = useLocation();
+=======
 import React, { useState, useRef, useEffect } from 'react';
 import './Header.css';
 
@@ -49,19 +58,34 @@ const Header = () => {
     // Логика регистрации
     setShowAuthDropdown(false);
   };
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
 
   return (
     <header className="header">
-      <div className="header-content">
-        <div className="logo">Учебная платформа</div>
+      <div className="header-container">
+        <div className="logo">
+          <Link to="/">Учебная платформа</Link>
+        </div>
+        
         <nav className="nav">
-          <ul className="nav-list">
-            <li className="nav-item"><a href="#" className="nav-link">ПСБ</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Курсы</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Расписание</a></li>
-            <li className="nav-item"><a href="#" className="nav-link">Учебные материалы</a></li>
-          </ul>
+          <Link 
+            to="/" 
+            className={location.pathname === '/' ? 'nav-link active' : 'nav-link'}
+          >
+            Главная
+          </Link>
+          <Link 
+            to="/profile" 
+            className={location.pathname === '/profile' ? 'nav-link active' : 'nav-link'}
+          >
+            Профиль
+          </Link>
+          <button className="auth-button" onClick={onAuthClick}>
+            Войти
+          </button>
         </nav>
+<<<<<<< HEAD
+=======
         
         <div className="auth-section">
           {!isLoggedIn ? (
@@ -106,6 +130,7 @@ const Header = () => {
             </div>
           )}
         </div>
+>>>>>>> e74d98744bce1d9543d544fd7c4b2863f4ef4dec
       </div>
     </header>
   );
