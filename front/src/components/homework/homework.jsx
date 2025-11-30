@@ -3,22 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './homework.css';
 
-const TopicDetail = () => {
+const Homework = ({ isAuthenticated, currentUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { courseId, topicId, title } = location.state || {};
   
-  // Получаем текущего пользователя из App через пропсы или localStorage
-  const [currentUserEmail, setCurrentUserEmail] = useState('');
-  
+  // Проверяем авторизацию при загрузке компонента
   useEffect(() => {
-    // Попробуем получить email из localStorage или других источников
-    const storedEmail = localStorage.getItem('userEmail');
-    if (storedEmail) {
-      setCurrentUserEmail(storedEmail);
-      setFormData(prev => ({ ...prev, email: storedEmail }));
+    if (!isAuthenticated || !currentUser?.email) {
+      navigate('/', { replace: true });
+      return;
     }
-  }, []);
+  }, [isAuthenticated, currentUser, navigate]);
+  
   const [formData, setFormData] = useState({
     lastName: '',
     firstName: '',
@@ -35,8 +32,8 @@ const TopicDetail = () => {
 
   // Проверяем, есть ли уже отправленное задание по этой теме
   useEffect(() => {
-    const email = formData.email || currentUserEmail;
-    if (email && topicId) {
+    const email = currentUser?.email || formData.email;
+    if (email && topicId && isAuthenticated) {
       const checkExisting = async () => {
         try {
           const res = await fetch(`/api/homeworks?email=${encodeURIComponent(email)}`);
@@ -54,7 +51,14 @@ const TopicDetail = () => {
       };
       checkExisting();
     }
-  }, [formData.email, currentUserEmail, topicId]);
+  }, [currentUser?.email, formData.email, topicId, isAuthenticated]);
+  
+  // Обновляем email при изменении currentUser
+  useEffect(() => {
+    if (currentUser?.email) {
+      setFormData(prev => ({ ...prev, email: currentUser.email }));
+    }
+  }, [currentUser]);
 
   const handleBack = () => {
     navigate(-1);
@@ -227,18 +231,42 @@ const TopicDetail = () => {
                   <label htmlFor="fileUpload" className="file-label">
                     Загрузите свое выполненное задание
                   </label>
-                  <input
-                    type="file"
-                    id="fileUpload"
-                    onChange={handleFileChange}
-                    className="file-input"
-                    required
-                  />
-                  {fileName && (
-                    <div className="file-info">
-                      Выбран файл: {fileName}
-                    </div>
-                  )}
+                  <div className="file-upload-container">
+                    <input
+                      type="file"
+                      id="fileUpload"
+                      onChange={handleFileChange}
+                      className="file-input-hidden"
+                      required
+                    />
+                    <label htmlFor="fileUpload" className="file-upload-button">
+                      <span className="file-upload-icon">📎</span>
+                      <span className="file-upload-text">
+                        {fileName ? 'Изменить файл' : 'Выберите файл'}
+                      </span>
+                    </label>
+                    {fileName && (
+                      <div className="file-info">
+                        <span className="file-name-icon">📄</span>
+                        <span className="file-name-text">{fileName}</span>
+                        <button
+                          type="button"
+                          className="file-remove-button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, file: null }));
+                            setFileName('');
+                            // Сброс input
+                            const fileInput = document.getElementById('fileUpload');
+                            if (fileInput) {
+                              fileInput.value = '';
+                            }
+                          }}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <button type="submit" className="submit-button" disabled={loading}>
@@ -254,4 +282,4 @@ const TopicDetail = () => {
 };
 
 
-export default TopicDetail;
+export default Homework;

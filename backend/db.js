@@ -159,6 +159,15 @@ function getHomeworksByEmail(userEmail) {
   });
 }
 
+function getHomeworkById(homeworkId) {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT * FROM homeworks WHERE id = ?', [homeworkId], (err, row) => {
+      if (err) return reject(err);
+      resolve(row || null);
+    });
+  });
+}
+
 // Домашки + последняя оценка/комментарий
 function getHomeworksWithFeedbackByEmail(userEmail) {
   return new Promise((resolve, reject) => {
@@ -284,5 +293,6 @@ module.exports = {
   getHomeworksByEmail,
   getHomeworksWithFeedbackByEmail,
   createHomeworkFeedback,
-  getHomeworkVersions
+  getHomeworkVersions,
+  getHomeworkById
 };

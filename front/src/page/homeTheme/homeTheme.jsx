@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './homeTheme.css';
 
-const TopicDetail = () => {
+const TopicDetail = ({ isAuthenticated, currentUser }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { courseId, topicId, title, description } = location.state || {};
@@ -40,6 +40,11 @@ const TopicDetail = () => {
 
   // Навигация на страницу с формой
   const handleGoToForm = () => {
+    if (!isAuthenticated) {
+      // Можно показать модальное окно авторизации или перенаправить
+      alert('Для отправки задания необходимо войти в аккаунт');
+      return;
+    }
     navigate('/homework', { state: { courseId, topicId, title } });
   };
 
@@ -102,18 +107,28 @@ const TopicDetail = () => {
         <section className="assignment-section">
           <h2 className="assignment-title">Задание</h2>
           <p className="assignment-description">
-            Изучите материалы темы и выполните задание. Вы можете загрузить выполненное задание через форму ниже.
+            Изучите материалы темы и выполните задание. {isAuthenticated ? 'Вы можете загрузить выполненное задание через форму ниже.' : 'Для отправки задания необходимо войти в аккаунт.'}
           </p>
 
-          {/* Кнопка для перехода к полной форме */}
-          <div className="form-link-section">
-            <button 
-              className="form-link-button"
-              onClick={handleGoToForm}
-            >
-              📝 Отправить выполненное задание
-            </button>
-          </div>
+          {/* Кнопка для перехода к полной форме - только для авторизованных */}
+          {isAuthenticated && (
+            <div className="form-link-section">
+              <button 
+                className="form-link-button"
+                onClick={handleGoToForm}
+              >
+                📝 Отправить выполненное задание
+              </button>
+            </div>
+          )}
+          
+          {!isAuthenticated && (
+            <div className="form-link-section">
+              <p className="auth-required-message">
+                ⚠️ Для отправки задания необходимо войти в аккаунт
+              </p>
+            </div>
+          )}
         </section>
       </div>
     </div>

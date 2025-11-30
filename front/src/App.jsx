@@ -13,6 +13,7 @@ import Homework from './components/homework/homework.jsx';
 import SchedulePage from './page/schedule/schedule.jsx';
 import MaterialsPage from './page/materials/materials.jsx';
 import GradesPage from './page/grades/grades.jsx';
+import SearchPage from './page/search/search.jsx';
 
 function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -44,11 +45,12 @@ function App() {
           <Route path="/profile" element={<ProfilePage isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
           <Route path="/courses" element={<Courses />} />
           <Route path="/topic" element={<CourseDetail />} /> 
-          <Route path="/topicNumber" element={<TopicDetail />} />
-          <Route path="/homework" element={<Homework />} />
+          <Route path="/topicNumber" element={<TopicDetail isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
+          <Route path="/homework" element={<Homework isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
           <Route path="/schedule" element={<SchedulePage isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
           <Route path="/materials" element={<MaterialsPage isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
           <Route path="/grades" element={<GradesPage isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
+          <Route path="/search" element={<SearchPage isAuthenticated={isAuthenticated} currentUser={currentUser} />} />
         </Routes>
 
         <AuthModal 

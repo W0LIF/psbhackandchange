@@ -74,6 +74,47 @@
   background: #f8d7da;
   border: 1px solid #f5c6cb;
   border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+}
+
+.materials-error p {
+  margin: 0 0 15px 0;
+}
+
+.retry-button {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.retry-button:hover {
+  background: #c82333;
+  transform: translateY(-1px);
+}
+
+.clear-filter-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 15px;
+}
+
+.clear-filter-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
 }
 
 .materials-empty {

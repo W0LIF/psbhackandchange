@@ -9,24 +9,32 @@ const SchedulePage = ({ isAuthenticated, currentUser }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!isAuthenticated || !currentUser?.email) {
-      return;
-    }
-
     const loadSchedule = async () => {
       try {
         setLoading(true);
         setError('');
-        const email = currentUser.email;
-        const res = await fetch(`/api/schedule?email=${encodeURIComponent(email)}`);
-        const data = await res.json().catch(() => ({}));
+        
+        // Формируем URL с email, если пользователь авторизован
+        let url = '/api/schedule';
+        if (isAuthenticated && currentUser?.email) {
+          url += `?email=${encodeURIComponent(currentUser.email)}`;
+        }
+        
+        const res = await fetch(url);
+        
         if (!res.ok) {
-          setError(data?.error || 'Не удалось загрузить расписание');
+          const errorData = await res.json().catch(() => ({}));
+          setError(errorData?.error || errorData?.message || `Ошибка ${res.status}: Не удалось загрузить расписание`);
+          setSchedule([]);
           return;
         }
+        
+        const data = await res.json();
         setSchedule(Array.isArray(data.schedule) ? data.schedule : []);
       } catch (e) {
+        console.error('Schedule loading error:', e);
         setError('Сервер недоступен, попробуйте позже');
+        setSchedule([]);
       } finally {
         setLoading(false);
       }
@@ -68,15 +76,15 @@ const SchedulePage = ({ isAuthenticated, currentUser }) => {
       <div className="schedule-container">
         <header className="schedule-header">
           <h1 className="schedule-title">Расписание дедлайнов</h1>
-          {!isAuthenticated && (
-            <p className="schedule-subtitle">Войдите в систему, чтобы увидеть ваше расписание</p>
-          )}
+          <p className="schedule-subtitle">
+            {isAuthenticated ? 'Ваши дедлайны по курсам' : 'Дедлайны по всем курсам'}
+          </p>
         </header>
 
         {loading && <div className="schedule-loading">Загрузка расписания...</div>}
         {error && <div className="schedule-error">{error}</div>}
 
-        {!loading && !error && isAuthenticated && (
+        {!loading && !error && (
           <>
             {schedule.length === 0 ? (
               <div className="schedule-empty">
@@ -113,12 +121,6 @@ const SchedulePage = ({ isAuthenticated, currentUser }) => {
               </div>
             )}
           </>
-        )}
-
-        {!isAuthenticated && (
-          <div className="schedule-placeholder">
-            <p>Войдите в систему, чтобы увидеть ваше расписание дедлайнов</p>
-          </div>
         )}
       </div>
     </div>

@@ -237,6 +237,17 @@
   box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
+.auth-required-message {
+  text-align: center;
+  padding: 20px;
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  color: #856404;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .topic-detail-container {

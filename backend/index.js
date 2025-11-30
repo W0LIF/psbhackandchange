@@ -70,7 +70,16 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({ storage });
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB максимум
+  },
+  fileFilter: (req, file, cb) => {
+    // Разрешаем все типы файлов для домашних заданий
+    cb(null, true);
+  }
+});
 
 // Middlewares в правильном порядке
 app.use(cors({
@@ -384,10 +393,19 @@ app.get('/api/courses', async (req, res) => {
     const email = (req.query.email || '').toString().trim().toLowerCase();
     let homeworks = [];
 
+    // Если email указан, валидируем его
+    if (email && !isValidEmail(email)) {
+      return res.status(400).json({ 
+        error: 'Invalid email format',
+        message: 'Please provide a valid email address'
+      });
+    }
+
     if (email && isValidEmail(email)) {
       try {
         homeworks = await db.getHomeworksWithFeedbackByEmail(email);
       } catch (e) {
+        logger.warn(`Failed to load homeworks for ${email}: ${e.message}`);
         // если не получилось прочитать домашки, просто считаем, что их нет
         homeworks = [];
       }
@@ -408,7 +426,11 @@ app.get('/api/courses', async (req, res) => {
       return { ...course, progress };
     });
 
-    res.json({ count: result.length, courses: result });
+    res.json({ 
+      count: result.length, 
+      courses: result,
+      email: email || null
+    });
   } catch (err) {
     logger.error(`Courses list error: ${err.message}`, { stack: err.stack });
     res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve courses' });
@@ -417,44 +439,95 @@ app.get('/api/courses', async (req, res) => {
 
 // Информация по одному курсу + его темам
 app.get('/api/courses/:id', (req, res) => {
-  const id = Number(req.params.id);
-  if (!Number.isFinite(id)) {
-    return res.status(400).json({ error: 'Invalid course id' });
-  }
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid course id',
+        message: 'Course id must be a positive number'
+      });
+    }
 
-  const course = courses.find(c => c.id === id);
-  if (!course) {
-    return res.status(404).json({ error: 'Course not found' });
-  }
+    const course = courses.find(c => c.id === id);
+    if (!course) {
+      return res.status(404).json({ 
+        error: 'Course not found',
+        message: `Course with id ${id} does not exist`
+      });
+    }
 
-  const courseTopics = topics.filter(t => t.courseId === id);
-  res.json({ course, topics: courseTopics });
+    const courseTopics = topics.filter(t => t.courseId === id);
+    res.json({ 
+      course, 
+      topics: courseTopics,
+      topicsCount: courseTopics.length
+    });
+  } catch (err) {
+    logger.error(`Get course error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve course' });
+  }
 });
 
 // Темы по курсу
 app.get('/api/courses/:id/topics', (req, res) => {
-  const id = Number(req.params.id);
-  if (!Number.isFinite(id)) {
-    return res.status(400).json({ error: 'Invalid course id' });
-  }
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid course id',
+        message: 'Course id must be a positive number'
+      });
+    }
 
-  const courseTopics = topics.filter(t => t.courseId === id);
-  res.json({ count: courseTopics.length, topics: courseTopics });
+    const course = courses.find(c => c.id === id);
+    if (!course) {
+      return res.status(404).json({ 
+        error: 'Course not found',
+        message: `Course with id ${id} does not exist`
+      });
+    }
+
+    const courseTopics = topics.filter(t => t.courseId === id);
+    res.json({ 
+      count: courseTopics.length, 
+      topics: courseTopics,
+      courseTitle: course.title
+    });
+  } catch (err) {
+    logger.error(`Get course topics error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve topics' });
+  }
 });
 
 // Одна тема по id
 app.get('/api/topics/:id', (req, res) => {
-  const id = Number(req.params.id);
-  if (!Number.isFinite(id)) {
-    return res.status(400).json({ error: 'Invalid topic id' });
-  }
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid topic id',
+        message: 'Topic id must be a positive number'
+      });
+    }
 
-  const topic = topics.find(t => t.id === id);
-  if (!topic) {
-    return res.status(404).json({ error: 'Topic not found' });
-  }
+    const topic = topics.find(t => t.id === id);
+    if (!topic) {
+      return res.status(404).json({ 
+        error: 'Topic not found',
+        message: `Topic with id ${id} does not exist`
+      });
+    }
 
-  res.json(topic);
+    // Добавляем информацию о курсе
+    const course = courses.find(c => c.id === topic.courseId);
+    res.json({
+      ...topic,
+      courseTitle: course ? course.title : null
+    });
+  } catch (err) {
+    logger.error(`Get topic error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve topic' });
+  }
 });
 
 // Приём домашних заданий (с файлом) - поддерживает версионирование
@@ -462,9 +535,23 @@ app.post('/api/homeworks', upload.single('file'), async (req, res) => {
   try {
     logger.info('POST /api/homeworks called');
 
+    // Обработка ошибок multer
+    if (req.fileValidationError) {
+      return res.status(400).json({ error: req.fileValidationError });
+    }
+
     const { lastName, firstName, email, taskDescription, courseId, topicId, parentHomeworkId } = req.body || {};
+    
+    // Валидация обязательных полей
     if (!lastName || !firstName || !email) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        message: 'lastName, firstName and email are required' 
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
     }
 
     if (!req.file) {
@@ -511,6 +598,14 @@ app.post('/api/homeworks', upload.single('file'), async (req, res) => {
       }
     });
   } catch (err) {
+    // Если ошибка multer (например, размер файла)
+    if (err instanceof multer.MulterError) {
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large', message: 'Maximum file size is 10MB' });
+      }
+      return res.status(400).json({ error: 'File upload error', message: err.message });
+    }
+    
     logger.error(`Homework submit error: ${err.message}`, { stack: err.stack });
     res.status(500).json({ error: 'Internal server error', message: 'Failed to submit homework' });
   }
@@ -521,11 +616,17 @@ app.get('/api/homeworks', async (req, res) => {
   try {
     const email = (req.query.email || '').toString().trim().toLowerCase();
     if (!email) {
-      return res.status(400).json({ error: 'Email query parameter is required' });
+      return res.status(400).json({ 
+        error: 'Email query parameter is required',
+        message: 'Please provide email as query parameter: ?email=user@example.com'
+      });
     }
 
     if (!isValidEmail(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
+      return res.status(400).json({ 
+        error: 'Invalid email format',
+        message: 'Please provide a valid email address'
+      });
     }
 
     const homeworks = await db.getHomeworksWithFeedbackByEmail(email);
@@ -560,12 +661,32 @@ app.get('/api/homeworks', async (req, res) => {
 app.patch('/api/homeworks/:id/feedback', async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
-      return res.status(400).json({ error: 'Invalid homework id' });
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid homework id',
+        message: 'Homework id must be a positive number'
+      });
+    }
+
+    // Проверяем существование домашнего задания
+    const homework = await db.getHomeworkById(id);
+    if (!homework) {
+      return res.status(404).json({ 
+        error: 'Homework not found',
+        message: `Homework with id ${id} does not exist`
+      });
     }
 
     const { grade, comment } = req.body || {};
     const numericGrade = grade === undefined || grade === null ? null : Number(grade);
+
+    // Валидация оценки (если указана)
+    if (numericGrade !== null && (numericGrade < 0 || numericGrade > 100 || !Number.isFinite(numericGrade))) {
+      return res.status(400).json({ 
+        error: 'Invalid grade',
+        message: 'Grade must be a number between 0 and 100'
+      });
+    }
 
     const feedback = await db.createHomeworkFeedback(id, numericGrade, comment || null);
 
@@ -583,11 +704,31 @@ app.patch('/api/homeworks/:id/feedback', async (req, res) => {
 app.get('/api/homeworks/:id/versions', async (req, res) => {
   try {
     const id = Number(req.params.id);
-    if (!Number.isFinite(id)) {
-      return res.status(400).json({ error: 'Invalid homework id' });
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid homework id',
+        message: 'Homework id must be a positive number'
+      });
+    }
+
+    // Проверяем существование домашнего задания
+    const homework = await db.getHomeworkById(id);
+    if (!homework) {
+      return res.status(404).json({ 
+        error: 'Homework not found',
+        message: `Homework with id ${id} does not exist`
+      });
     }
 
     const versions = await db.getHomeworkVersions(id);
+    
+    if (!versions || versions.length === 0) {
+      return res.json({
+        count: 0,
+        versions: [],
+        message: 'No versions found for this homework'
+      });
+    }
 
     // Обогащаем версии названиями курса и темы
     const enriched = versions.map(hw => {
@@ -620,12 +761,19 @@ app.get('/api/schedule', async (req, res) => {
   try {
     const email = (req.query.email || '').toString().trim().toLowerCase();
     
-    // Получаем все домашние задания студента
+    // Получаем все домашние задания студента (если email указан)
     let homeworks = [];
-    if (email && isValidEmail(email)) {
+    if (email) {
+      if (!isValidEmail(email)) {
+        return res.status(400).json({ 
+          error: 'Invalid email format',
+          message: 'Please provide a valid email address'
+        });
+      }
       try {
         homeworks = await db.getHomeworksWithFeedbackByEmail(email);
       } catch (e) {
+        logger.warn(`Failed to load homeworks for schedule: ${e.message}`);
         homeworks = [];
       }
     }
@@ -713,6 +861,153 @@ app.get('/api/materials', async (req, res) => {
   }
 });
 
+// Получение информации о студенте по email
+app.get('/api/students/:email', async (req, res) => {
+  try {
+    const email = (req.params.email || '').toString().trim().toLowerCase();
+    
+    if (!email || !isValidEmail(email)) {
+      return res.status(400).json({ error: 'Invalid email' });
+    }
+
+    // Получаем информацию из dataStore
+    await dataStore.ensureDataFile();
+    const students = await dataStore.getStudents();
+    const student = students.find(s => s.email && s.email.toLowerCase() === email);
+
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+
+    // Получаем статистику по домашним заданиям
+    let homeworks = [];
+    try {
+      homeworks = await db.getHomeworksWithFeedbackByEmail(email);
+    } catch (e) {
+      // Игнорируем ошибки БД
+    }
+
+    res.json({
+      id: student.id,
+      name: student.name,
+      email: student.email,
+      group: student.group,
+      createdAt: student.createdAt,
+      updatedAt: student.updatedAt,
+      statistics: {
+        totalHomeworks: homeworks.length,
+        gradedHomeworks: homeworks.filter(hw => hw.grade != null).length,
+        averageGrade: homeworks.filter(hw => hw.grade != null).length > 0
+          ? Math.round((homeworks.reduce((sum, hw) => sum + (hw.grade || 0), 0) / homeworks.filter(hw => hw.grade != null).length) * 10) / 10
+          : 0
+      }
+    });
+  } catch (err) {
+    logger.error(`Get student error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve student' });
+  }
+});
+
+// Скачивание файла домашнего задания
+app.get('/api/homeworks/:id/file', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid homework id',
+        message: 'Homework id must be a positive number'
+      });
+    }
+
+    const homework = await db.getHomeworkById(id);
+
+    if (!homework) {
+      return res.status(404).json({ error: 'Homework not found' });
+    }
+
+    const filePath = homework.file_path;
+    if (!filePath) {
+      return res.status(404).json({ 
+        error: 'File path not found',
+        message: 'Homework file path is missing'
+      });
+    }
+
+    if (!fs.existsSync(filePath)) {
+      logger.warn(`File not found: ${filePath} for homework ${id}`);
+      return res.status(404).json({ 
+        error: 'File not found',
+        message: 'The homework file was not found on the server'
+      });
+    }
+
+    // Отправляем файл
+    const fileName = homework.original_name || `homework-${id}`;
+    res.download(filePath, fileName, (err) => {
+      if (err) {
+        logger.error(`File download error: ${err.message}`);
+        if (!res.headersSent) {
+          res.status(500).json({ error: 'Failed to download file' });
+        }
+      }
+    });
+  } catch (err) {
+    logger.error(`Get homework file error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve file' });
+  }
+});
+
+// Получение одного домашнего задания по ID
+app.get('/api/homeworks/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ 
+        error: 'Invalid homework id',
+        message: 'Homework id must be a positive number'
+      });
+    }
+
+    const homework = await db.getHomeworkById(id);
+
+    if (!homework) {
+      return res.status(404).json({ 
+        error: 'Homework not found',
+        message: `Homework with id ${id} does not exist`
+      });
+    }
+
+    // Получаем feedback через БД
+    const sqlite3 = require('sqlite3').verbose();
+    const dbPath = path.join(__dirname, 'data.db');
+    const feedback = await new Promise((resolve, reject) => {
+      const dbInstance = new sqlite3.Database(dbPath);
+      dbInstance.get(
+        'SELECT * FROM homework_feedback WHERE homework_id = ? ORDER BY created_at DESC LIMIT 1',
+        [id],
+        (err, row) => {
+          dbInstance.close();
+          if (err) return reject(err);
+          resolve(row || null);
+        }
+      );
+    });
+
+    const course = homework.course_id ? courses.find(c => c.id === homework.course_id) : null;
+    const topic = homework.topic_id ? topics.find(t => t.id === homework.topic_id) : null;
+
+    res.json({
+      ...homework,
+      courseTitle: course ? course.title : null,
+      topicTitle: topic ? topic.title : null,
+      feedback: feedback
+    });
+  } catch (err) {
+    logger.error(`Get homework error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve homework' });
+  }
+});
+
 // Журнал успеваемости студента
 app.get('/api/students/:email/grades', async (req, res) => {
   try {
@@ -797,16 +1092,68 @@ app.get('/api/students/:email/grades', async (req, res) => {
 
     const overallAverage = gradedCount > 0 ? Math.round((totalGrade / gradedCount) * 10) / 10 : 0;
 
+    // Преобразуем topics из объекта в массив для удобства на фронтенде
+    const coursesArray = Object.values(gradesByCourse).map(course => ({
+      ...course,
+      topics: Object.values(course.topics)
+    }));
+
     res.json({
       email,
       overallAverage,
       totalGraded,
       totalSubmitted: homeworks.length,
-      courses: Object.values(gradesByCourse)
+      courses: coursesArray
     });
   } catch (err) {
     logger.error(`Get grades error: ${err.message}`, { stack: err.stack });
     res.status(500).json({ error: 'Internal server error', message: 'Failed to retrieve grades' });
+  }
+});
+
+// Поиск по курсам и материалам
+app.get('/api/search', async (req, res) => {
+  try {
+    const query = (req.query.q || '').toString().trim().toLowerCase();
+    
+    if (!query || query.length < 2) {
+      return res.json({
+        courses: [],
+        topics: [],
+        message: 'Минимальная длина запроса - 2 символа'
+      });
+    }
+
+    // Поиск по курсам
+    const matchedCourses = courses.filter(course => {
+      const titleMatch = course.title.toLowerCase().includes(query);
+      const descMatch = course.description && course.description.toLowerCase().includes(query);
+      return titleMatch || descMatch;
+    });
+
+    // Поиск по темам
+    const matchedTopics = topics.filter(topic => {
+      const titleMatch = topic.title.toLowerCase().includes(query);
+      const descMatch = topic.description && topic.description.toLowerCase().includes(query);
+      const contentMatch = topic.content && topic.content.toLowerCase().includes(query);
+      return titleMatch || descMatch || contentMatch;
+    }).map(topic => {
+      const course = courses.find(c => c.id === topic.courseId);
+      return {
+        ...topic,
+        courseTitle: course ? course.title : `Курс ${topic.courseId}`
+      };
+    });
+
+    res.json({
+      query,
+      count: matchedCourses.length + matchedTopics.length,
+      courses: matchedCourses,
+      topics: matchedTopics
+    });
+  } catch (err) {
+    logger.error(`Search error: ${err.message}`, { stack: err.stack });
+    res.status(500).json({ error: 'Internal server error', message: 'Failed to perform search' });
   }
 });
 
@@ -857,9 +1204,39 @@ app.use((req, res) => {
       'GET /health',
       'POST /api/students/register',
       'GET /api/students',
+      'GET /api/students/:email',
+      'GET /api/courses',
+      'GET /api/courses/:id',
+      'GET /api/topics/:id',
+      'GET /api/materials',
+      'GET /api/schedule',
+      'POST /api/homeworks',
+      'GET /api/homeworks',
+      'GET /api/homeworks/:id',
+      'GET /api/homeworks/:id/file',
+      'GET /api/homeworks/:id/versions',
+      'GET /api/students/:email/grades',
+      'GET /api/search',
       'GET /debug/routes'
     ]
   });
+});
+
+// Обработка ошибок multer
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ 
+        error: 'File too large', 
+        message: 'Maximum file size is 10MB' 
+      });
+    }
+    return res.status(400).json({ 
+      error: 'File upload error', 
+      message: err.message 
+    });
+  }
+  next(err);
 });
 
 // Error handling middleware

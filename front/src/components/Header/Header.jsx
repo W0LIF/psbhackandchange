@@ -8,8 +8,11 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
   const location = useLocation();
   const [showAuthDropdown, setShowAuthDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const authDropdownRef = useRef(null);
   const profileDropdownRef = useRef(null);
+  const searchRef = useRef(null);
   const navigate = useNavigate();
   // Обработчик клика вне dropdown для его закрытия
   useEffect(() => {
@@ -20,6 +23,9 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target)) {
         setShowProfileDropdown(false);
       }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchResults(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -27,6 +33,19 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setShowSearchResults(false);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
 
   const handleProfileButtonClick = () => {
     if (!isAuthenticated) {
@@ -88,6 +107,22 @@ const Header = ({ onAuthClick, isAuthenticated, onLogout }) => {
             Учебные материалы
           </button>
         </nav>
+
+        <div className="search-container" ref={searchRef}>
+          <form onSubmit={handleSearch} className="search-form">
+            <input
+              type="text"
+              className="search-input"
+              placeholder="Поиск по курсам и материалам..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onFocus={() => setShowSearchResults(true)}
+            />
+            <button type="submit" className="search-button">
+              🔍
+            </button>
+          </form>
+        </div>
 
         <div className="auth-section">
           <div className={isAuthenticated ? "profile-dropdown-container" : "auth-dropdown-container"} 

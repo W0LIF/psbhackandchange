@@ -21,14 +21,27 @@ const GradesPage = ({ isAuthenticated, currentUser }) => {
         setError('');
         const email = currentUser.email;
         const res = await fetch(`/api/students/${encodeURIComponent(email)}/grades`);
-        const data = await res.json().catch(() => ({}));
+        
         if (!res.ok) {
-          setError(data?.error || 'Не удалось загрузить журнал успеваемости');
+          const errorData = await res.json().catch(() => ({}));
+          setError(errorData?.error || errorData?.message || `Ошибка ${res.status}: Не удалось загрузить журнал успеваемости`);
+          setGradesData(null);
           return;
         }
+        
+        const data = await res.json();
+        
+        if (!data) {
+          setError('Получены пустые данные');
+          setGradesData(null);
+          return;
+        }
+        
         setGradesData(data);
       } catch (e) {
+        console.error('Grades loading error:', e);
         setError('Сервер недоступен, попробуйте позже');
+        setGradesData(null);
       } finally {
         setLoading(false);
       }
@@ -56,7 +69,40 @@ const GradesPage = ({ isAuthenticated, currentUser }) => {
 
       <div className="grades-content">
         {loading && <div className="grades-loading">Загрузка данных...</div>}
-        {error && <div className="grades-error">{error}</div>}
+        {error && (
+          <div className="grades-error">
+            <p>{error}</p>
+            <button 
+              className="retry-button"
+              onClick={() => {
+                setError('');
+                if (currentUser?.email) {
+                  const loadGrades = async () => {
+                    try {
+                      setLoading(true);
+                      const email = currentUser.email;
+                      const res = await fetch(`/api/students/${encodeURIComponent(email)}/grades`);
+                      if (!res.ok) {
+                        const errorData = await res.json().catch(() => ({}));
+                        setError(errorData?.error || errorData?.message || 'Не удалось загрузить журнал успеваемости');
+                        return;
+                      }
+                      const data = await res.json();
+                      setGradesData(data);
+                    } catch (e) {
+                      setError('Сервер недоступен, попробуйте позже');
+                    } finally {
+                      setLoading(false);
+                    }
+                  };
+                  loadGrades();
+                }
+              }}
+            >
+              Попробовать снова
+            </button>
+          </div>
+        )}
         
         {!loading && !error && gradesData && (
           <>
@@ -92,30 +138,32 @@ const GradesPage = ({ isAuthenticated, currentUser }) => {
                       </div>
                     </div>
                     
-                    {Object.keys(course.topics).length > 0 ? (
+                    {course.topics && (Array.isArray(course.topics) ? course.topics : Object.values(course.topics || {})).length > 0 ? (
                       <div className="topics-grades">
-                        {Object.values(course.topics).map(topic => (
+                        {(Array.isArray(course.topics) ? course.topics : Object.values(course.topics || {})).map(topic => (
                           <div key={topic.topicId} className="topic-grades-item">
                             <div className="topic-grades-header">
-                              <h4>{topic.topicTitle}</h4>
+                              <h4>{topic.topicTitle || `Тема ${topic.topicId}`}</h4>
                               <span className="topic-average">
                                 Средний: {topic.averageGrade || 0}
                               </span>
                             </div>
                             
-                            {topic.grades && topic.grades.length > 0 ? (
+                            {topic.grades && Array.isArray(topic.grades) && topic.grades.length > 0 ? (
                               <div className="grades-list">
                                 {topic.grades.map((grade, idx) => (
                                   <div key={idx} className="grade-item">
                                     <div className="grade-info">
                                       <span className="grade-version">
-                                        Версия {grade.version}
+                                        Версия {grade.version || 1}
                                       </span>
                                       <span className="grade-value">
                                         Оценка: <strong>{grade.grade}</strong>
                                       </span>
                                       <span className="grade-date">
-                                        {new Date(grade.feedbackCreatedAt || grade.createdAt).toLocaleDateString()}
+                                        {grade.feedbackCreatedAt || grade.createdAt 
+                                          ? new Date(grade.feedbackCreatedAt || grade.createdAt).toLocaleDateString('ru-RU')
+                                          : 'Дата не указана'}
                                       </span>
                                     </div>
                                     {grade.comment && (
