@@ -5,7 +5,7 @@
     "name": "Иван Иванов",
     "email": "ivan@example.com",
     "group": "A-1",
-    "password":"123",
+    "password": "123",
     "createdAt": "2025-11-29T19:59:31.147Z",
     "updatedAt": "2025-11-29T19:59:31.147Z"
   },
@@ -14,8 +14,17 @@
     "name": "тест тест тест",
     "email": "test@mail.ru",
     "group": "test",
-    "password":"123",
+    "password": "123",
     "createdAt": "2025-11-29T23:11:36.159Z",
     "updatedAt": "2025-11-29T23:11:36.159Z"
+  },
+  {
+    "id": "d615a66a-80e2-43d4-abfc-5c57771c666e",
+    "name": "увакпрол",
+    "email": "sd@mail.ru",
+    "group": "вапр",
+    "createdAt": "2025-11-30T10:22:09.356Z",
+    "updatedAt": "2025-11-30T10:22:09.356Z",
+    "password": null
   }
 ]

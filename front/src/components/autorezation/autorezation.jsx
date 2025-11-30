@@ -7,7 +7,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     fullName: '',
-    login: '', // для простоты используем как email при логине
+    group: '', // group used for registration
     email: '',
     password: '',
     confirmPassword: ''
@@ -47,7 +47,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
       setErrors(prev => ({
         ...prev,
         [name]: '',
-        general: name === 'login' || name === 'password' ? '' : prev.general
+        general: name === 'email' || name === 'password' ? '' : prev.general
       }));
     }
   };
@@ -56,8 +56,8 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
     e.preventDefault();
 
     const newErrors = {};
-    if (!formData.login.trim()) {
-      newErrors.login = 'Email обязателен для заполнения';
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email обязателен для заполнения';
     }
     if (!formData.password) {
       newErrors.password = 'Пароль обязателен для заполнения';
@@ -79,7 +79,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
         },
         credentials: 'include', // важно для refreshToken в cookie
         body: JSON.stringify({
-          email: formData.login.trim().toLowerCase(),
+          email: formData.email.trim().toLowerCase(),
           password: formData.password
         })
       });
@@ -93,7 +93,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
         return;
       }
 
-      const user = data && data.user ? data.user : { email: formData.login.trim().toLowerCase() };
+      const user = data && data.user ? data.user : { email: formData.email.trim().toLowerCase() };
 
       onAuthSuccess(true, user);
       onClose();
@@ -112,8 +112,8 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'ФИО обязательно для заполнения';
     }
-    if (!formData.login.trim()) {
-      newErrors.login = 'Логин обязателен для заполнения';
+    if (!formData.group.trim()) {
+      newErrors.group = 'Группа обязателена для заполнения';
     }
     if (!formData.email.trim()) {
       newErrors.email = 'Email обязателен для заполнения';
@@ -149,8 +149,10 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password
+            email: formData.email.trim().toLowerCase(),
+            password: formData.password,
+            name: formData.fullName.trim(),
+            group: formData.group || null
         })
       });
 
@@ -163,29 +165,14 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
         return;
       }
 
-      const registeredUser = data && data.email ? { email: data.email } : { email: formData.email.trim().toLowerCase() };
-
-      // параллельно сохраним студента в JSON-хранилище бэка
-      try {
-        await fetch('/api/students/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            name: formData.fullName || formData.email,
-            email: formData.email.trim().toLowerCase(),
-            group: formData.login || null
-          })
-        });
-      } catch (_) {
-        // игнорируем ошибку регистрации студента, чтобы не ломать общий флоу
-      }
+      const registeredUser = data && data.email
+        ? { email: data.email, id: data.id, fullName: data.student && data.student.name ? data.student.name : null }
+        : { email: formData.email.trim().toLowerCase() };
 
       // после успешной регистрации предлагаем залогиниться теми же данными
       setFormData(prev => ({
         ...prev,
-        login: formData.email.trim().toLowerCase()
+        email: formData.email.trim().toLowerCase()
       }));
       setIsLogin(true);
       onAuthSuccess(true, registeredUser);
@@ -216,13 +203,13 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
                 <div className="form-group">
                   <input 
                     type="email" 
-                    name="login"
-                    placeholder="Логин"
-                    value={formData.login}
+                    name="email"
+                    placeholder="Email"
+                    value={formData.email}
                     onChange={handleInputChange}
-                    className={errors.login ? 'error' : ''}
+                    className={errors.email ? 'error' : ''}
                   />
-                  {errors.login && <span className="error-text">{errors.login}</span>}
+                  {errors.email && <span className="error-text">{errors.email}</span>}
                 </div>
                 <div className="form-group">
                   <input 
@@ -264,13 +251,13 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess }) => {
                 <div className="form-group">
                   <input 
                     type="text" 
-                    name="login"
-                    placeholder="Логин" 
-                    value={formData.login}
+                    name="group"
+                    placeholder="Группа" 
+                    value={formData.group}
                     onChange={handleInputChange}
-                    className={errors.login ? 'error' : ''}
+                    className={errors.group ? 'error' : ''}
                   />
-                  {errors.login && <span className="error-text">{errors.login}</span>}
+                  {errors.group && <span className="error-text">{errors.group}</span>}
                 </div>
                 <div className="form-group">
                   <input 

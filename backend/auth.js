@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { logger } = require('./logger');
 // Заменено: подключаем реальную БД вместо временной заглушки
 const db = require('./db');
+const dataStore = require('./dataStore');
 
 const router = express.Router();
 
@@ -78,12 +79,53 @@ router.post('/register', async (req, res) => {
     const hash = hashPassword(password);
     const user = await db.createUser(email, hash);
 
+    // Optionally create a student record in dataStore if name or group is provided
+    try {
+      const name = req.body.name || req.body.fullName || null;
+      const group = req.body.group || null;
+      if (name) {
+          await dataStore.ensureDataFile();
+          const students = await dataStore.getStudents();
+          const exists = students.some(s => s.email && s.email.toLowerCase() === email);
+          if (!exists) {
+          // don't block registration on student creation errors
+          const createdStudent = await dataStore.addStudent({
+            id: require('uuid').v4(),
+            name: String(name).trim(),
+            email: email,
+            group: group ? String(group).trim() : null,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            // keep parity with existing file format
+            password: null
+          }).catch(() => null);
+          if (createdStudent) {
+            // attach to response via local variable
+            req._createdStudent = createdStudent;
+          }
+          }
+        }
+    } catch (e) {
+      // ignore any errors here
+    }
+
     logger.info(`User registered: id=${user.id} email=${user.email}`);
-    return res.status(201).json({
+    // Prepare response
+    const responsePayload = {
       id: user.id,
       email: user.email,
       message: 'User registered successfully'
-    });
+    };
+    if (req._createdStudent) {
+      responsePayload.student = {
+        id: req._createdStudent.id,
+        name: req._createdStudent.name,
+        email: req._createdStudent.email,
+        group: req._createdStudent.group,
+        createdAt: req._createdStudent.createdAt
+      };
+    }
+    return res.status(201).json(responsePayload);
   } catch (err) {
     return handleError(res, err, 'Registration failed');
   }
@@ -105,10 +147,32 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const user = await db.getUserByEmail(email);
+    let user = await db.getUserByEmail(email);
     if (!user) {
-      logger.warn(`Login failed - user not found: ${email}`);
-      return res.status(401).json({ error: 'Invalid credentials' });
+      // Try fallback to data store (students.json) for legacy students
+      try {
+        await dataStore.ensureDataFile();
+        const students = await dataStore.getStudents();
+        const student = students.find(s => s.email && s.email.toLowerCase() === email);
+        if (student && student.password && student.password === password) {
+          logger.info(`Login via students.json fallback for: ${email}`);
+          // Migrate student to sqlite users table
+          const migratedHash = hashPassword(password);
+          try {
+            const created = await db.createUser(email, migratedHash);
+            user = created;
+          } catch (e) {
+            // if creation fails (duplicate or other) just skip and continue
+            logger.warn(`Migration to sqlite failed for ${email}: ${e && e.message}`);
+          }
+        }
+      } catch (e) {
+        // ignore and continue to reject
+      }
+      if (!user) {
+        logger.warn(`Login failed - user not found: ${email}`);
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
     }
 
     const ok = verifyPassword(password, user.password_hash);
